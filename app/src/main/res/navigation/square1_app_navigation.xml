@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/square1_app_navigation"
+    app:startDestination="@id/mapFragment">
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.example.square1taskapp.ui.listscreen.ListFragment"
+        android:label="List View"
+        tools:layout="@layout/fragment_list" >
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.square1taskapp.ui.mapscreen.MapFragment"
+        android:label="Map View"
+        tools:layout="@layout/fragment_map" />
+</navigation>
