@@ -4,4 +4,16 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="map_key" translatable="false">AIzaSyA2JAmazOay4fV-wCWAZE8d2xjTy31BR-4</string>
     <string name="error_displaying_data">Error Displaying Data</string>
+    <string name="not_loaded">Not Loaded</string>
+    <string name="retry">Retry</string>
+    <string name="city_name">City Name</string>
+    <string name="citiy_local_name">Citiy Local Name</string>
+    <string name="name">Name</string>
+    <string name="local_name">Local Name</string>
+    <string name="latitude">latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="search_city">Search City</string>
+    <string name="enter_city_name">Enter City Name</string>
+    <string name="welcome_text">"Fetching a List of Cities From Square Api http://connect-demo.mobile1.io/square1/connect/v1/city For My Task Assement, Hoping to Join This Great Team At Square1 And Build Awesome Stuff! "</string>
+    <string name="unable_to_fetch_data">Unable to Fetch Data</string>
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_elevation">10dp</dimen>
+    <dimen name="img_height">200dp</dimen>
+    <dimen name="img_height2">40dp</dimen>
+</resources>

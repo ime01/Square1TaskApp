@@ -1,48 +1,130 @@
 package com.example.square1taskapp.ui.listscreen
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadState
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.square1taskapp.R
+import com.example.square1taskapp.data.models.Item
+import com.example.square1taskapp.databinding.FragmentListBinding
+import com.example.square1taskapp.presentation.adapter.CitiesLoadStateAdapter
+import com.example.square1taskapp.presentation.viewmodels.CitiesViewModel
+import com.example.square1taskapp.util.showSnackbar
+import com.flowz.paging3withflow.adapter.CitiesPagingAdapter
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+@OptIn(ExperimentalPagingApi::class)
+@InternalCoroutinesApi
+@AndroidEntryPoint
+class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.OnitemClickListener {
+
+    private  var _binding: FragmentListBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var citiesAdapter: CitiesPagingAdapter
+    private val viewModel: CitiesViewModel by viewModels()
 
 
-class ListFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentListBinding.bind(view)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_list, container, false)
-    }
+        loadReclyclerView()
+        loadData()
+        //loadData2()
 
-    companion object {
+        citiesAdapter.addLoadStateListener {loadState->
+            binding.apply {
+                progressBar.isVisible = loadState.source.refresh is LoadState.Loading
+                rvCities.isVisible = loadState.source.refresh is LoadState.NotLoading
+                buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
+                errorText.isVisible = loadState.source.refresh is LoadState.Error
 
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached&& citiesAdapter.itemCount<1){
+                    rvCities.isVisible = false
+                    errorText.isVisible = true
+                }else{
+                    errorText.isVisible = false
                 }
             }
+        }
+
+
+        binding.buttonRetry.setOnClickListener {
+            citiesAdapter.retry()
+        }
+
     }
+
+    @OptIn(InternalCoroutinesApi::class)
+    private fun loadData() {
+
+        lifecycleScope.launchWhenResumed {
+
+            viewModel.getAllCities.collect {
+                Log.d("VALUES1","$it")
+                citiesAdapter.submitData(it)
+            }
+        }
+
+
+    }
+
+    private fun loadReclyclerView() {
+
+        citiesAdapter = CitiesPagingAdapter(this@ListFragment)
+
+        binding.rvCities.apply {
+
+            layoutManager = LinearLayoutManager(requireContext())
+
+            adapter =  citiesAdapter.withLoadStateHeaderAndFooter(
+                header = CitiesLoadStateAdapter{ citiesAdapter.retry()},
+                footer = CitiesLoadStateAdapter{ citiesAdapter.retry()}
+            )
+            setHasFixedSize(true)
+            binding.shimmerFrameLayout.stopShimmer()
+
+        }
+
+
+
+
+    }
+
+    private fun loadData2() {
+
+        lifecycleScope.launch {
+
+            viewModel.citiesDataFromNetwork.collect{
+                Log.e("CITY", "$it")
+                citiesAdapter.submitData(it)
+
+            }
+        }
+        binding.progressBar.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    override fun onItemClick(item: Item) {
+        showSnackbar(binding.cityName, "Yea! You Clicked ${item.name} City!")
+    }
+
 }

@@ -5,8 +5,13 @@
       <map>
         <entry key="app/src/main/res/drawable/splash_screen.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/layout/cities_item.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/layout/cities_load_state_footer.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/layout/fragment_list.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/rick_n_morty_item.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/layout/rick_n_morty_load_state_footer.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/layout/shimmer_placeholder_layout.xml" value="0.18333333333333332" />
       </map>
     </option>
   </component>
