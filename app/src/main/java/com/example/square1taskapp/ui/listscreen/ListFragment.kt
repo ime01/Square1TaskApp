@@ -96,6 +96,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
     private fun loadReclyclerView() {
 
+        binding.shimmerFrameLayout.startShimmer()
         citiesAdapter = CitiesPagingAdapter(this@ListFragment)
 
         binding.rvCities.apply {
