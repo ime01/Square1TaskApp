@@ -1,6 +1,7 @@
 package com.example.square1taskapp.ui.listscreen
 
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -42,6 +43,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         _binding = FragmentListBinding.bind(view)
 
 
+        showWelcomeMarqueeText()
         loadReclyclerView()
         loadData()
         //loadData2()
@@ -81,6 +83,15 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         }
 
 
+    }
+
+    fun showWelcomeMarqueeText() {
+        binding.welcomeTextMarquee.apply {
+            setSingleLine()
+            ellipsize = TextUtils.TruncateAt.MARQUEE
+            marqueeRepeatLimit = -1
+            isSelected = true
+        }
     }
 
     private fun loadReclyclerView() {
