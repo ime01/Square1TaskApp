@@ -7,7 +7,6 @@ import androidx.room.Room
 import com.example.square1taskapp.data.local.CitiesDatabase
 import com.example.square1taskapp.util.Constants.BASE_URL
 import com.example.square1taskapp.data.remote.CitiesApi
-import com.example.square1taskapp.data.repository.Repository
 import com.example.square1taskapp.util.Constants
 import dagger.Module
 import dagger.Provides
@@ -47,10 +46,10 @@ class AppModule {
         return Room.databaseBuilder(context, CitiesDatabase::class.java, Constants.CITIES_DATABASE).build()
     }
 
-    @OptIn(ExperimentalPagingApi::class)
+    /*@OptIn(ExperimentalPagingApi::class)
     @Singleton
     fun providesCitiesRepository(api: CitiesApi, database: CitiesDatabase): Repository{
         return Repository(api, database)
-    }
+    }*/
 
 }

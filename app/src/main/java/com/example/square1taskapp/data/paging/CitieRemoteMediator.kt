@@ -1,3 +1,4 @@
+/*
 package com.example.square1taskapp.data.paging
 
 import android.util.Log
@@ -11,6 +12,7 @@ import com.example.square1taskapp.util.Constants.ITEMS_PER_PAGE
 import com.example.square1taskapp.data.models.CitiesRemoteKeys
 import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.data.remote.CitiesApi
+import java.util.concurrent.TimeUnit
 
 
 @ExperimentalPagingApi
@@ -18,6 +20,15 @@ class CitieRemoteMediator (private val citiesApi: CitiesApi, private val citiesD
 
     private val citiesDao = citiesDatabase.CitiesDao()
     private val citiesRemoteKeysDao = citiesDatabase.CitiesRemoteKeysDao()
+
+    override suspend fun initialize(): InitializeAction {
+            // Need to refresh cached data from network; returning
+            // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
+            // APPEND and PREPEND from running until REFRESH succeeds.
+           return InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+
+
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Item>): MediatorResult {
 
@@ -102,4 +113,4 @@ class CitieRemoteMediator (private val citiesApi: CitiesApi, private val citiesD
 
     }
 
-}
+}*/

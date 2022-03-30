@@ -36,6 +36,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
     private val binding get() = _binding!!
     private lateinit var citiesAdapter: CitiesPagingAdapter
     private val viewModel: CitiesViewModel by viewModels()
+    lateinit var cityName: String
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,20 +46,24 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
         showWelcomeMarqueeText()
         loadReclyclerView()
-        loadData()
-        //loadData2()
+        loadCities()
+       // loadData2()
+        //loadData()
 
-        citiesAdapter.addLoadStateListener {loadState->
+
+       citiesAdapter.addLoadStateListener { loadState ->
             binding.apply {
                 progressBar.isVisible = loadState.source.refresh is LoadState.Loading
                 rvCities.isVisible = loadState.source.refresh is LoadState.NotLoading
                 buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
                 errorText.isVisible = loadState.source.refresh is LoadState.Error
 
-                if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached&& citiesAdapter.itemCount<1){
+                if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && citiesAdapter.itemCount < 1) {
                     rvCities.isVisible = false
                     errorText.isVisible = true
-                }else{
+                    buttonRetry.isVisible = true
+
+                } else {
                     errorText.isVisible = false
                 }
             }
@@ -69,21 +74,58 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             citiesAdapter.retry()
         }
 
+        binding.fetchCities.setOnClickListener {
+
+            if (TextUtils.isEmpty(binding.cityName.text.toString())) {
+                binding.cityName.setError(getString(R.string.enter_valid_input))
+                return@setOnClickListener
+            } else {
+                cityName = binding.cityName.text.toString().trim()
+
+                //viewModel.searchCities(cityName)
+
+            }
+
+
+        }
+
     }
 
-    @OptIn(InternalCoroutinesApi::class)
-    private fun loadData() {
+    @InternalCoroutinesApi
+    private fun loadCities() {
 
+        lifecycleScope.launch {
+
+            viewModel.citiesDataFromNetwork.collect{
+                Log.e("RnM", "$it")
+                citiesAdapter.submitData(it)
+
+            }
+        }
+        binding.progressBar.visibility = View.GONE
+    }
+
+
+    /* fun loadData() {
         lifecycleScope.launchWhenResumed {
-
             viewModel.getAllCities.collect {
                 Log.d("VALUES1","$it")
                 citiesAdapter.submitData(it)
             }
         }
+    }*/
 
-
+    private fun loadData2() {
+        lifecycleScope.launch {
+            viewModel.citiesDataFromNetwork.collect{
+                Log.e("CITY", "$it")
+                citiesAdapter.submitData(it)
+            }
+        }
+        binding.progressBar.visibility = View.GONE
     }
+
+
 
     fun showWelcomeMarqueeText() {
         binding.welcomeTextMarquee.apply {
@@ -94,6 +136,15 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         }
     }
 
+  /*  fun observeSearchedCities(){
+        lifecycleScope.launchWhenResumed {
+            viewModel.searchedCities.collect {
+                Log.d("TVALUE", "$it")
+                citiesAdapter.submitData(it)
+            }
+        }
+    }
+*/
     private fun loadReclyclerView() {
 
         binding.shimmerFrameLayout.startShimmer()
@@ -111,24 +162,8 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             binding.shimmerFrameLayout.stopShimmer()
 
         }
-
-
-
-
     }
 
-    private fun loadData2() {
-
-        lifecycleScope.launch {
-
-            viewModel.citiesDataFromNetwork.collect{
-                Log.e("CITY", "$it")
-                citiesAdapter.submitData(it)
-
-            }
-        }
-        binding.progressBar.visibility = View.GONE
-    }
 
     override fun onDestroy() {
         super.onDestroy()

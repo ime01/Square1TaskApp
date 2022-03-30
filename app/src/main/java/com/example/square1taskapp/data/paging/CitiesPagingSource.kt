@@ -1,3 +1,4 @@
+/*
 package com.example.square1taskapp.data.paging
 
 import android.util.Log
@@ -13,9 +14,12 @@ class CitiesPagingSource(private val citiesApi: CitiesApi, private val query: St
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
 
         val currentPage = params.key ?: 1
-        return try {
+        return try {*/
+/**//*
+
             //val response = unsplashApi.searchImages(query = query, per_page = ITEMS_PER_PAGE)
-            val response = citiesApi.fetchCities(ITEMS_PER_PAGE)
+            val response = citiesApi.searchCities(ITEMS_PER_PAGE, query)
+            Log.d("CRES", "$response")
 
             val endOfPaginationReached = response.data?.items?.isEmpty()
             Log.d("APIRES", "$response")
@@ -43,3 +47,4 @@ class CitiesPagingSource(private val citiesApi: CitiesApi, private val query: St
     }
 
 }
+*/
