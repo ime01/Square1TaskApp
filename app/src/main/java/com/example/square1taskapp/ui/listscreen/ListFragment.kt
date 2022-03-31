@@ -3,14 +3,14 @@ package com.example.square1taskapp.ui.listscreen
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +36,12 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
     private val binding get() = _binding!!
     private lateinit var citiesAdapter: CitiesPagingAdapter
     private val viewModel: CitiesViewModel by viewModels()
+    lateinit var cityName: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,20 +51,28 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
         showWelcomeMarqueeText()
         loadReclyclerView()
-        loadData()
-        //loadData2()
+        observeSearchedCities()
 
-        citiesAdapter.addLoadStateListener {loadState->
+        lifecycleScope.launch {
+            val getAllCities = viewModel.getAllCitiesFromRemoteMediator.collect {
+                citiesAdapter.submitData(it)
+            }
+        }
+
+
+
+       citiesAdapter.addLoadStateListener { loadState ->
             binding.apply {
                 progressBar.isVisible = loadState.source.refresh is LoadState.Loading
                 rvCities.isVisible = loadState.source.refresh is LoadState.NotLoading
                 buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
                 errorText.isVisible = loadState.source.refresh is LoadState.Error
 
-                if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached&& citiesAdapter.itemCount<1){
+                if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && citiesAdapter.itemCount < 1) {
                     rvCities.isVisible = false
                     errorText.isVisible = true
-                }else{
+
+                } else {
                     errorText.isVisible = false
                 }
             }
@@ -69,21 +83,25 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             citiesAdapter.retry()
         }
 
-    }
+        binding.fetchCities.setOnClickListener {
 
-    @OptIn(InternalCoroutinesApi::class)
-    private fun loadData() {
+            if (TextUtils.isEmpty(binding.cityName.text.toString())) {
+                binding.cityName.setError(getString(R.string.enter_valid_input))
+                return@setOnClickListener
+            } else {
+                cityName = binding.cityName.text.toString().trim()
 
-        lifecycleScope.launchWhenResumed {
+               // viewModel.updateSearchQuery(cityName)
 
-            viewModel.getAllCities.collect {
-                Log.d("VALUES1","$it")
-                citiesAdapter.submitData(it)
+                viewModel.searchCity(cityName)
+
             }
+
+
         }
 
-
     }
+
 
     fun showWelcomeMarqueeText() {
         binding.welcomeTextMarquee.apply {
@@ -91,6 +109,16 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             ellipsize = TextUtils.TruncateAt.MARQUEE
             marqueeRepeatLimit = -1
             isSelected = true
+        }
+    }
+
+    @InternalCoroutinesApi
+    fun observeSearchedCities(){
+        lifecycleScope.launch{
+            viewModel.searchedCities.collect {
+                Log.d("TVALUE", "$it")
+                citiesAdapter.submitData(it)
+            }
         }
     }
 
@@ -111,24 +139,25 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             binding.shimmerFrameLayout.stopShimmer()
 
         }
-
-
-
-
     }
 
-    private fun loadData2() {
 
-        lifecycleScope.launch {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_layout, menu)
+    }
 
-            viewModel.citiesDataFromNetwork.collect{
-                Log.e("CITY", "$it")
-                citiesAdapter.submitData(it)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
 
+            R.id.map_view ->{
+                findNavController().navigate(R.id.action_listFragment_to_mapFragment)
+                true
             }
+
+            else -> super.onOptionsItemSelected(item)
         }
-        binding.progressBar.visibility = View.GONE
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

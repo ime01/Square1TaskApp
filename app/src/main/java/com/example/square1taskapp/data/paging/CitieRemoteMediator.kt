@@ -11,13 +11,22 @@ import com.example.square1taskapp.util.Constants.ITEMS_PER_PAGE
 import com.example.square1taskapp.data.models.CitiesRemoteKeys
 import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.data.remote.CitiesApi
+import java.util.concurrent.TimeUnit
 
 
 @ExperimentalPagingApi
-class CitieRemoteMediator (private val citiesApi: CitiesApi, private val citiesDatabase: CitiesDatabase) : RemoteMediator<Int, Item>(){
+class CitieRemoteMediator (private val citiesApi: CitiesApi, private val citiesDatabase: CitiesDatabase, private val query:String) : RemoteMediator<Int, Item>(){
 
     private val citiesDao = citiesDatabase.CitiesDao()
     private val citiesRemoteKeysDao = citiesDatabase.CitiesRemoteKeysDao()
+
+    override suspend fun initialize(): InitializeAction {
+            // Need to refresh cached data from network; returning
+            // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
+            // APPEND and PREPEND from running until REFRESH succeeds.
+           return InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, Item>): MediatorResult {
 
@@ -45,39 +54,37 @@ class CitieRemoteMediator (private val citiesApi: CitiesApi, private val citiesD
                 }
             }
 
-           // val response = unsplashApi.getAllImages(page = currentPage, per_page = ITEMS_PER_PAGE)
-            val response = citiesApi.fetchCities(ITEMS_PER_PAGE)
 
-            val endOfPaginationReached = response.data?.items?.isEmpty()
+            val response = citiesApi.searchCities(ITEMS_PER_PAGE, query)
+
+            val endOfPaginationReached = response.body()?.data?.items?.isEmpty()
 
             val prevPage = if (currentPage == 1) null else currentPage - 1
-            val nextPage = if (endOfPaginationReached == true) null else currentPage + 1
+            val nextPage = if (endOfPaginationReached!!) null else currentPage + 1
 
             citiesDatabase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     citiesDao.deleteAllCityItems()
                     citiesRemoteKeysDao.deleteAllRemoteKeys()
                 }
-                val keys = response.data?.items?.map { cityItem ->
+                val keys = response.body()?.data?.items?.map { cityItem ->
                     CitiesRemoteKeys(
                         id = cityItem.id.toString(),
                         prevPage = prevPage,
                         nextPage = nextPage
                     )
                 }
-                if (keys != null) {
-                    citiesRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys)
-                }
-                //unsplashImageDao.addImages(images = response)
-                response.data?.items?.let { citiesDao.addCityItems(it) }
+
+                    citiesRemoteKeysDao.addAllRemoteKeys(remoteKeys = keys!!)
+
+                citiesDao.addCityItems(response.body()?.data?.items!!)
             }
-            MediatorResult.Success(endOfPaginationReached = endOfPaginationReached!!)
+            MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (e: Exception) {
             return MediatorResult.Error(e)
         }
-
-
         }
+
 
     private suspend fun getRemoteKeyClosestToCurrentPosition(state: PagingState<Int, Item>): CitiesRemoteKeys? {
         return state.anchorPosition?.let { position ->
