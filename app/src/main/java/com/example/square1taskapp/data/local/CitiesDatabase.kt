@@ -7,7 +7,7 @@ import com.example.square1taskapp.data.local.dao.CitiesDao
 import com.example.square1taskapp.data.models.CitiesRemoteKeys
 import com.example.square1taskapp.data.models.Item
 
-@Database(entities = [Item::class, CitiesRemoteKeys::class], version = 1, exportSchema = false)
+@Database(entities = [Item::class, CitiesRemoteKeys::class], version = 1)
 abstract class CitiesDatabase : RoomDatabase(){
 
     abstract fun CitiesDao(): CitiesDao

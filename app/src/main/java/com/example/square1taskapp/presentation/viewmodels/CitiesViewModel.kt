@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import com.example.square1taskapp.data.local.CitiesDatabase
 import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.data.paging.CityPagingSource2
 import com.example.square1taskapp.data.remote.CitiesApi
+import com.example.square1taskapp.data.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -18,23 +20,29 @@ import javax.inject.Inject
 @OptIn(InternalCoroutinesApi::class)
 @ExperimentalPagingApi
 @HiltViewModel
-class CitiesViewModel @Inject constructor( val citiesApi: CitiesApi): ViewModel() {
+class CitiesViewModel @Inject constructor( val citiesApi: CitiesApi, val repository: Repository): ViewModel() {
 
-    //val getAllCities = repository.getAllCityItems()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery
+
+    val getAllCitiesFromRemoteMediator = repository.getAllCityItems(searchQuery.value)
+
+
+
+
+
     private val _searchedCities = MutableStateFlow<PagingData<Item>>(PagingData.empty())
     val searchedCities = _searchedCities
 
 
+    fun updateSearchQuery(query: String){
+        _searchQuery.value = query
+    }
+
+
     fun searchCity(query: String){
-
-        val citiesDataFromNetwork = Pager(PagingConfig(pageSize = 1)){
-            CityPagingSource2(citiesApi, query)
-
-
-        }.flow.cachedIn(viewModelScope)
-
         viewModelScope.launch {
-            citiesDataFromNetwork.collect {
+            repository.searchCities(query).cachedIn(viewModelScope).collect {
                 _searchedCities.value = it
             }
         }

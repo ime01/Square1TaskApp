@@ -1,12 +1,18 @@
 package com.example.square1taskapp.ui.mapscreen
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.filter
+import androidx.paging.map
 import com.example.square1taskapp.R
+import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.databinding.FragmentMapBinding
+import com.example.square1taskapp.presentation.viewmodels.CitiesViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -15,12 +21,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
+@OptIn(ExperimentalPagingApi::class)
 @AndroidEntryPoint
 class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
     // TODO: Rename and change types of parameters
@@ -30,9 +39,12 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: CitiesViewModel by viewModels()
+    val listOfCities = mutableListOf<Item>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
@@ -44,6 +56,15 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMapBinding.bind(view)
 
+
+        lifecycleScope.launch {
+             viewModel.getAllCitiesFromRemoteMediator.collect {
+                it.map{
+                    listOfCities.add(it)
+                }
+            }
+        }
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -54,12 +75,34 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
             mMap = gMap
         }
 
-        mMap.addMarker(
-            MarkerOptions()
-            .icon(BitmapDescriptorFactory.fromResource(R.drawable.minibmw))
-            .position(LatLng(-6.9166667, 106.9272232)).title("Sukabumi, Local Name is West Java"))
+        if (listOfCities.isNullOrEmpty()){
+            listOfCities.forEach {
+                mMap.addMarker(MarkerOptions()
+                    .position(LatLng(it.lat!!, it.lng!!))
+                    .title(it.name)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lng), 12.5F), 4000, null)
+            }
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(-6.9166667, 106.9272232), 12.5F), 4000, null)
+        }
+    }
+
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu1_layout, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+
+            R.id.list_View ->{
+                findNavController().navigate(R.id.action_mapFragment_to_listFragment)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroy() {

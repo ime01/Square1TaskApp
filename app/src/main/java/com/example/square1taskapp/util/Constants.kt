@@ -11,4 +11,6 @@ object Constants {
     const val CITIES_DATABASE = "city_database"
 
     const val ITEMS_PER_PAGE = 20
+
+    const val FIRST_SEARCH_QUERY_FROM_TASK = "ka"
 }

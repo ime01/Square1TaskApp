@@ -12,6 +12,8 @@
         <entry key="app/src/main/res/layout/rick_n_morty_item.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/layout/rick_n_morty_load_state_footer.xml" value="0.22864583333333333" />
         <entry key="app/src/main/res/layout/shimmer_placeholder_layout.xml" value="0.18333333333333332" />
+        <entry key="app/src/main/res/menu/menu1_layout.xml" value="0.22864583333333333" />
+        <entry key="app/src/main/res/menu/menu_layout.xml" value="0.22864583333333333" />
       </map>
     </option>
   </component>

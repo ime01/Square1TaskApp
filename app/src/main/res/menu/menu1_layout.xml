@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/list_View"
+        android:icon="@drawable/ic_baseline_format_list_numbered_24"
+        android:title="List View"
+        app:showAsAction="always"
+        />
+</menu>

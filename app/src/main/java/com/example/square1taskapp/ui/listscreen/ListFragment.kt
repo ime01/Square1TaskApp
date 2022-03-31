@@ -3,14 +3,14 @@ package com.example.square1taskapp.ui.listscreen
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -38,6 +38,11 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
     private val viewModel: CitiesViewModel by viewModels()
     lateinit var cityName: String
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,9 +52,13 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         showWelcomeMarqueeText()
         loadReclyclerView()
         observeSearchedCities()
-        //loadCities()
-       // loadData2()
-        //loadData()
+
+        lifecycleScope.launch {
+            val getAllCities = viewModel.getAllCitiesFromRemoteMediator.collect {
+                citiesAdapter.submitData(it)
+            }
+        }
+
 
 
        citiesAdapter.addLoadStateListener { loadState ->
@@ -82,6 +91,8 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             } else {
                 cityName = binding.cityName.text.toString().trim()
 
+               // viewModel.updateSearchQuery(cityName)
+
                 viewModel.searchCity(cityName)
 
             }
@@ -90,41 +101,6 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         }
 
     }
-
-   /* @InternalCoroutinesApi
-    private fun loadCities() {
-
-        lifecycleScope.launch {
-
-            viewModel.citiesDataFromNetwork.collect{
-                Log.e("RnM", "$it")
-                citiesAdapter.submitData(it)
-
-            }
-        }
-        binding.progressBar.visibility = View.GONE
-    }*/
-
-
-    /* fun loadData() {
-        lifecycleScope.launchWhenResumed {
-            viewModel.getAllCities.collect {
-                Log.d("VALUES1","$it")
-                citiesAdapter.submitData(it)
-            }
-        }
-    }*/
-
-   /* private fun loadData2() {
-        lifecycleScope.launch {
-            viewModel.citiesDataFromNetwork.collect{
-                Log.e("CITY", "$it")
-                citiesAdapter.submitData(it)
-            }
-        }
-        binding.progressBar.visibility = View.GONE
-    }*/
-
 
 
     fun showWelcomeMarqueeText() {
@@ -138,7 +114,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
     @InternalCoroutinesApi
     fun observeSearchedCities(){
-        lifecycleScope.launchWhenResumed {
+        lifecycleScope.launch{
             viewModel.searchedCities.collect {
                 Log.d("TVALUE", "$it")
                 citiesAdapter.submitData(it)
@@ -162,6 +138,23 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             setHasFixedSize(true)
             binding.shimmerFrameLayout.stopShimmer()
 
+        }
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_layout, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+
+            R.id.map_view ->{
+                findNavController().navigate(R.id.action_listFragment_to_mapFragment)
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
