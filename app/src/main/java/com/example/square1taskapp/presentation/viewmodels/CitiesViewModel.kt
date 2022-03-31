@@ -9,6 +9,7 @@ import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.data.paging.CityPagingSource2
 import com.example.square1taskapp.data.remote.CitiesApi
 import com.example.square1taskapp.data.repository.Repository
+import com.example.square1taskapp.util.Constants.FIRST_SEARCH_QUERY_FROM_TASK
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -22,7 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CitiesViewModel @Inject constructor( val citiesApi: CitiesApi, val repository: Repository): ViewModel() {
 
-    private val _searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow(FIRST_SEARCH_QUERY_FROM_TASK)
     val searchQuery = _searchQuery
 
     val getAllCitiesFromRemoteMediator = repository.getAllCityItems(searchQuery.value)

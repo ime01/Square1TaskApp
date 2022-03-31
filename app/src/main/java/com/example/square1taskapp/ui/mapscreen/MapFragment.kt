@@ -1,6 +1,7 @@
 package com.example.square1taskapp.ui.mapscreen
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -55,36 +56,46 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMapBinding.bind(view)
+        loadData()
 
-
-        lifecycleScope.launch {
-             viewModel.getAllCitiesFromRemoteMediator.collect {
-                it.map{
-                    listOfCities.add(it)
-                }
-            }
-        }
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
     }
 
+    fun loadData(){
+        lifecycleScope.launch {
+            viewModel.getAllCitiesFromRemoteMediator.collect {
+                it.map{
+                    listOfCities.add(it)
+                }
+            }
+        }
+    }
+
     override fun onMapReady(gMap: GoogleMap?) {
         if (gMap != null) {
             mMap = gMap
         }
+        val listOfCordinnates = mutableListOf<LatLng>()
+        //adding default city
+        listOfCordinnates.add(LatLng(34.5166667, 69.1833344))
 
+        //adding city coordinates from listof items from database
         if (listOfCities.isNullOrEmpty()){
-            listOfCities.forEach {
-                mMap.addMarker(MarkerOptions()
-                    .position(LatLng(it.lat!!, it.lng!!))
-                    .title(it.name)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.location)))
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.lat, it.lng), 12.5F), 4000, null)
+            listOfCities.forEach { item ->
+                listOfCordinnates.add(LatLng(item.lat!!, item.lng!!))
             }
-
         }
+
+            listOfCordinnates.forEach {
+                mMap.addMarker(MarkerOptions()
+                    .position(LatLng(it.longitude, it.latitude))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.minibmw)))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(it.latitude, it.longitude), 12.5F), 4000, null)
+
+            }
     }
 
 
