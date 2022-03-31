@@ -1,6 +1,29 @@
 # Square1TaskApp
 App built for joining Square1
 
+App built using the latest build tools and practices such as 
+
+DaggerHILT 
+
+PAGING 3 WITH REMOTE MEDIATOR
+
+GOOLEMAPS
+
+ROOM 
+
+FLOW
+
+CLEAN ARCHITECTURE WITH MVVM PATERN
+
+JETPACK NAVIGATION
+
+COROUTINES
+
+RETROFIT
+
+
+
+app, opens and you can enter city name in the box and search, paginated data is gotten with retrofit with remote mediator to cache into room database, that data is used to populate a list of coordinates then displayed on the map view, For the toogle between screen as mentioned in the task, there's an icon on the top right and clicking it swiches your view to either mapview or listview
 
 
 ScreenShots below 
