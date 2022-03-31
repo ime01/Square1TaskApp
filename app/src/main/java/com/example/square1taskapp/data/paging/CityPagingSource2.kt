@@ -6,7 +6,7 @@ import androidx.paging.PagingState
 import com.example.square1taskapp.data.models.Item
 import com.example.square1taskapp.data.remote.CitiesApi
 
-class CityPagingSource2(private val apiService: CitiesApi): PagingSource<Int, Item>() {
+class CityPagingSource2(private val apiService: CitiesApi, private val query:String): PagingSource<Int, Item>() {
 
     override fun getRefreshKey(state: PagingState<Int,  Item>): Int? {
         return null
@@ -17,7 +17,8 @@ class CityPagingSource2(private val apiService: CitiesApi): PagingSource<Int, It
         return try {
             val currentPage = params.key ?:1
 
-            val response = apiService.fetchCities(currentPage)
+            //val response = apiService.fetchCities(currentPage)
+            val response = apiService.searchCities(currentPage, query)
 //            Log.e(TAG, "$response")
 
             val data = response.body()?.data?.items?: emptyList()

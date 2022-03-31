@@ -15,6 +15,6 @@
     <string name="search_city">Search City</string>
     <string name="enter_city_name">Enter City Name</string>
     <string name="welcome_text">"Fetching a List of Cities From Square Api http://connect-demo.mobile1.io/square1/connect/v1/city For My Task Assement, Hoping to Join This Great Team At Square1 And Build Awesome Stuff! "</string>
-    <string name="unable_to_fetch_data">Unable to Fetch Data</string>
+    <string name="unable_to_fetch_data">No Data</string>
     <string name="enter_valid_input">Enter a city name</string>
 </resources>

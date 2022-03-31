@@ -46,7 +46,8 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
         showWelcomeMarqueeText()
         loadReclyclerView()
-        loadCities()
+        observeSearchedCities()
+        //loadCities()
        // loadData2()
         //loadData()
 
@@ -61,7 +62,6 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
                 if (loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && citiesAdapter.itemCount < 1) {
                     rvCities.isVisible = false
                     errorText.isVisible = true
-                    buttonRetry.isVisible = true
 
                 } else {
                     errorText.isVisible = false
@@ -82,7 +82,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             } else {
                 cityName = binding.cityName.text.toString().trim()
 
-                //viewModel.searchCities(cityName)
+                viewModel.searchCity(cityName)
 
             }
 
@@ -91,7 +91,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
 
     }
 
-    @InternalCoroutinesApi
+   /* @InternalCoroutinesApi
     private fun loadCities() {
 
         lifecycleScope.launch {
@@ -103,7 +103,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             }
         }
         binding.progressBar.visibility = View.GONE
-    }
+    }*/
 
 
     /* fun loadData() {
@@ -115,7 +115,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         }
     }*/
 
-    private fun loadData2() {
+   /* private fun loadData2() {
         lifecycleScope.launch {
             viewModel.citiesDataFromNetwork.collect{
                 Log.e("CITY", "$it")
@@ -123,7 +123,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             }
         }
         binding.progressBar.visibility = View.GONE
-    }
+    }*/
 
 
 
@@ -136,7 +136,8 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
         }
     }
 
-  /*  fun observeSearchedCities(){
+    @InternalCoroutinesApi
+    fun observeSearchedCities(){
         lifecycleScope.launchWhenResumed {
             viewModel.searchedCities.collect {
                 Log.d("TVALUE", "$it")
@@ -144,7 +145,7 @@ class ListFragment : Fragment(R.layout.fragment_list), CitiesPagingAdapter.Onite
             }
         }
     }
-*/
+
     private fun loadReclyclerView() {
 
         binding.shimmerFrameLayout.startShimmer()

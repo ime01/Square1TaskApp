@@ -20,14 +20,27 @@ import javax.inject.Inject
 @HiltViewModel
 class CitiesViewModel @Inject constructor( val citiesApi: CitiesApi): ViewModel() {
 
-    /*val getAllCities = repository.getAllCityItems()
+    //val getAllCities = repository.getAllCityItems()
     private val _searchedCities = MutableStateFlow<PagingData<Item>>(PagingData.empty())
     val searchedCities = _searchedCities
-*/
 
-    val citiesDataFromNetwork = Pager(PagingConfig(pageSize = 1)){
-        CityPagingSource2(citiesApi)
-    }.flow.cachedIn(viewModelScope)
+
+    fun searchCity(query: String){
+
+        val citiesDataFromNetwork = Pager(PagingConfig(pageSize = 1)){
+            CityPagingSource2(citiesApi, query)
+
+
+        }.flow.cachedIn(viewModelScope)
+
+        viewModelScope.launch {
+            citiesDataFromNetwork.collect {
+                _searchedCities.value = it
+            }
+        }
+
+    }
+
 
 
 
