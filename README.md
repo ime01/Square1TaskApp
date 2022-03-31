@@ -1,5 +1,5 @@
 # Square1TaskApp
-App built for joining Square1
+App built for my resumption at Square1
 
 App built using the latest build tools and practices such as 
 
